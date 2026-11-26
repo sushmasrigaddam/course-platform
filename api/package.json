@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@prisma/prisma7": "^7.10.1",
+    "@types/node": "^26.6.11",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/adapter-mariadb": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.10"
+  }
+}

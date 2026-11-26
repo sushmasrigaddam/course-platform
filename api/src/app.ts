@@ -1,20 +1,36 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './docs/swagger';
 import { errorHandler } from './middleware/errorHandler';
-
+import authRoutes from './routes/auth.routes';
+import publicRoutes from './routes/public.routes';
+import adminRoutes from './routes/admin';
+import studentRoutes from './routes/student.routes';
 const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: (process.env.CLIENT_ORIGINS || '').split(',') }));
 app.use(express.json());
 
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: { docExpansion: 'none', persistAuthorization: true },
+  })
+);
+
 app.get('/api/v1/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Routes are added here in Step 5 and Step 6
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', studentRoutes);
+app.use('/api/v1', publicRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
-app.use(errorHandler); // must stay last
+app.use(errorHandler);
 
 export default app;

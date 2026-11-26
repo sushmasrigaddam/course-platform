@@ -6,15 +6,36 @@ datasource db {
   provider = "mysql"
 }
 
-enum Role {
-  ADMIN
-  INSTRUCTOR
-  STUDENT
-}
-
 enum CourseStatus {
   DRAFT
   PUBLISHED
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?          @db.Text
+  isSystem    Boolean          @default(false)
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  key         String           @unique
+  description String?          @db.Text
+  isSystem    Boolean          @default(false)
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
 }
 
 model User {
@@ -22,12 +43,15 @@ model User {
   name         String
   email        String   @unique
   passwordHash String
-  role         Role     @default(STUDENT)
+  roleId       Int
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
   createdAt    DateTime @default(now())
 
   courses     Course[]
   enrollments Enrollment[]
   progress    LessonProgress[]
+
+  @@index([roleId])
 }
 
 model Category {
@@ -54,9 +78,20 @@ model Course {
   category    Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   instructor  User         @relation(fields: [instructorId], references: [id])
   modules     Module[]
+  sections    Section[]
   enrollments Enrollment[]
 
   @@index([status])
+}
+
+model Section {
+  id       Int    @id @default(autoincrement())
+  title    String
+  position Int
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, position])
 }
 
 model Module {

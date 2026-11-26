@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export type Role = 'ADMIN' | 'INSTRUCTOR' | 'STUDENT';
+export type Role = string;
 export type TokenPayload = { id: number; role: Role };
 
 function secret() {

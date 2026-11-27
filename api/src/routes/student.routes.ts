@@ -1,4 +1,4 @@
-import { Router, RequestHandler } from 'express';
+import { Router } from 'express';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
@@ -22,13 +22,6 @@ const profileSchema = z
     message: 'Provide a name or email to update',
     path: ['name'],
   });
-
-const optionalStudentAuth: RequestHandler = (req, res, next) => {
-  if (!req.headers.authorization) return next();
-  authenticate(req, res, () =>
-    requireRole('STUDENT')(req, res, () => requirePermission('read:enrollment')(req, res, next))
-  );
-};
 
 const publicUser = (user: { id: number; name: string; email: string; role: { name: string } }) => ({
   id: user.id,
@@ -286,21 +279,43 @@ router.delete(
   })
 );
 
+/**
+ * @openapi
+ * /my-courses:
+ *   get:
+ *     tags: [Student]
+ *     summary: List the current student's enrolled courses and progress
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Enrolled courses with lesson completion progress
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/StudentCourseProgress'
+ *       401:
+ *         description: Missing or invalid token
+ *       403:
+ *         description: Student role or read:enrollment permission required
+ */
 router.get(
-  '/courses',
-  optionalStudentAuth,
-  asyncHandler(async (req, res, next) => {
-    if (!req.user) return next();
-
+  '/my-courses',
+  authenticate,
+  requireRole('STUDENT'),
+  requirePermission('read:enrollment'),
+  asyncHandler(async (req, res) => {
     const enrollments = await prisma.enrollment.findMany({
-      where: { userId: req.user.id },
+      where: { userId: req.user!.id },
       orderBy: { enrolledAt: 'desc' },
       include: {
         course: { include: { modules: { include: { lessons: { select: { id: true } } } } } },
       },
     });
     const progressRows = await prisma.lessonProgress.findMany({
-      where: { userId: req.user.id },
+      where: { userId: req.user!.id },
       select: { lessonId: true },
     });
     const completedIds = new Set(progressRows.map((row) => row.lessonId));

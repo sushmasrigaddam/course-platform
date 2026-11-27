@@ -10,12 +10,10 @@ const router = Router();
  * @openapi
  * /courses:
  *   get:
- *     tags: [Public, Student]
- *     summary: List published or enrolled courses
- *     description: Anonymous requests list published courses; requests with a student bearer token list that student's enrollments and progress.
- *     security:
- *       - bearerAuth: []
- *       - {}
+ *     tags: [Public]
+ *     summary: List published courses
+ *     description: Public course catalog with search, category filter, and pagination.
+ *     security: []
  *     parameters:
  *       - { in: query, name: q, schema: { type: string }, description: Search in title }
  *       - { in: query, name: category, schema: { type: string }, description: Category slug }
@@ -23,15 +21,11 @@ const router = Router();
  *       - { in: query, name: limit, schema: { type: integer, default: 9 } }
  *     responses:
  *       200:
- *         description: Public course page or the authenticated student's enrolled courses
+ *         description: Page of published courses
  *         content:
  *           application/json:
  *             schema:
- *               oneOf:
- *                 - $ref: '#/components/schemas/CoursePage'
- *                 - type: array
- *                   items:
- *                     $ref: '#/components/schemas/StudentCourseProgress'
+ *               $ref: '#/components/schemas/CoursePage'
  */
 router.get(
   '/courses',
@@ -39,7 +33,7 @@ router.get(
     const q = String(req.query.q || '').trim();
     const category = String(req.query.category || '').trim();
     const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.min(Math.max(Number(req.query.limit) || 9, 1), 50);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
 
     // Public users only ever see published courses
     const where: Prisma.CourseWhereInput = { status: 'PUBLISHED' };

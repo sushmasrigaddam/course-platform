@@ -21,11 +21,6 @@ const profileSchema = zod_1.z
     message: 'Provide a name or email to update',
     path: ['name'],
 });
-const optionalStudentAuth = (req, res, next) => {
-    if (!req.headers.authorization)
-        return next();
-    (0, auth_1.authenticate)(req, res, () => (0, auth_1.requireRole)('STUDENT')(req, res, () => (0, auth_1.requirePermission)('read:enrollment')(req, res, next)));
-};
 const publicUser = (user) => ({
     id: user.id,
     name: user.name,
@@ -250,9 +245,29 @@ router.delete('/courses/:courseId/enroll', auth_1.authenticate, (0, auth_1.requi
     await prisma_1.prisma.enrollment.delete({ where: { id: enrollment.id } });
     res.json({ message: 'Course enrollment removed successfully' });
 }));
-router.get('/courses', optionalStudentAuth, (0, asyncHandler_1.asyncHandler)(async (req, res, next) => {
-    if (!req.user)
-        return next();
+/**
+ * @openapi
+ * /my-courses:
+ *   get:
+ *     tags: [Student]
+ *     summary: List the current student's enrolled courses and progress
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Enrolled courses with lesson completion progress
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/StudentCourseProgress'
+ *       401:
+ *         description: Missing or invalid token
+ *       403:
+ *         description: Student role or read:enrollment permission required
+ */
+router.get('/my-courses', auth_1.authenticate, (0, auth_1.requireRole)('STUDENT'), (0, auth_1.requirePermission)('read:enrollment'), (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const enrollments = await prisma_1.prisma.enrollment.findMany({
         where: { userId: req.user.id },
         orderBy: { enrolledAt: 'desc' },

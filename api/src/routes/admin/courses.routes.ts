@@ -8,12 +8,17 @@ import { slugify } from '../../utils/slugify';
 
 const router = Router();
 
+const thumbnailUrlSchema = z.union([
+  z.string().url(),
+  z.string().regex(/^\/course-images\/[A-Za-z0-9][A-Za-z0-9._-]*$/),
+]);
+
 const courseSchema = z.object({
   title: z.string().min(3),
   description: z.string().min(10),
   level: z.enum(['Beginner', 'Intermediate', 'Advanced']),
   price: z.number().min(0),
-  thumbnailUrl: z.string().url().nullable().optional(),
+  thumbnailUrl: thumbnailUrlSchema.nullable().optional(),
   categoryId: z.number().int().nullable().optional(),
 });
 

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { authenticateUser } from '../lib/api';
+import { authenticateUser } from '../lib/login';
 import type { userlogin } from '../types';
 
 type AuthFormProps = {

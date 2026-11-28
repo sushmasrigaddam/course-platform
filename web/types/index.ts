@@ -18,12 +18,12 @@ export type AuthResponse = {
 };
 
 export type CourseQuery = {
-    q?: string;
-    category?: string;
-    sort?: "asc" | "desc" | "newest";
-    page?: number;
-    limit?: number;
-    signal?: AbortSignal;
+  q?: string;
+  category?: string;
+  sort?: "asc" | "desc" | "newest";
+  page?: number;
+  limit?: number;
+  signal?: AbortSignal;
 };
 
 
@@ -41,4 +41,46 @@ export type CourseSummary = {
 export type CoursePageResponse = {
   items: CourseSummary[];
   total: number;
+};
+
+
+export type CourseInfo = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  level: string;
+  price: number | string;
+  thumbnailUrl: string | null;
+  status: 'PUBLISHED';
+  categoryId: number | null;
+  instructorId: number;
+  createdAt: string;
+  updatedAt: string;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+  instructor: {
+    name: string;
+  };
+  sections: Array<{
+    id: number;
+    title: string;
+    position: number;
+    courseId: number;
+  }>;
+  modules: Array<{
+    id: number;
+    title: string;
+    position: number;
+    courseId: number;
+    lessons: Array<{
+      id: number;
+      title: string;
+      durationMin: number;
+      position: number;
+    }>;
+  }>;
 };

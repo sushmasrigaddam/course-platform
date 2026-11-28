@@ -7,16 +7,16 @@ export default function Navbar() {
                 <div className="flex items-center space-x-8">
                     <div className="text-blue-900 font-bold text-xl">Learnly</div>
                     <div className="space-x-4">
-                        <Link href="/" className="text-black-300 hover:text-white">
+                        <Link href="/" className="text-black-300">
                             Home
                         </Link>
-                        <Link href="/courses" className="text-black-300 hover:text-white">
+                        <Link href="/courses" className="text-black-300 ">
                             Courses
                         </Link>
-                        <Link href="/about" className="text-black-300 hover:text-white">
+                        <Link href="/about" className="text-black-300 ">
                             About
                         </Link>
-                        <Link href="/contact" className="text-black-300 hover:text-white">
+                        <Link href="/contact" className="text-black-300 ">
                             Contact
                         </Link>
                     </div>

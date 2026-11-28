@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function CourseCard({ course }: { course: any }) {
     const apiOrigin = process.env.NEXT_PUBLIC_API_URL
         ?.replace(/\/api\/v1\/?$/, '')
@@ -19,13 +21,14 @@ export function CourseCard({ course }: { course: any }) {
             <h4 className="text-sm font-semibold bg-[#e6e5ff] text-[#5350c6] py-1 px-2 rounded w-fit">
                 {course.level}
             </h4>
+            <span>{course.slug}</span>
             <h3 className="text-[16px] font-semibold my-2">{course.title}</h3>
             <p className="text-gray-400 mb-4 text-sm"> by {course.instructor.name}</p>
             <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-gray-800">{course.price == 0 ? 'Free' : `₹ ${course.price}`}</span>
-                <button className="bg-[#3B38D0] text-white font-semibold text-sm py-1 px-4 rounded ml-2">
+                <Link href={`/courses/${course.slug}`} className="bg-[#3B38D0] text-white font-semibold text-sm py-1 px-4 rounded ml-2">
                     View Course
-                </button>
+                </Link>
             </div>
         </div>
     );

@@ -1,4 +1,5 @@
 import type { CourseQuery } from '../types';
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export async function Categories() {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -15,7 +16,6 @@ export async function Courses({
     limit = 10,
     signal,
 }: CourseQuery = {}) {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiBaseUrl) {
         throw new Error("NEXT_PUBLIC_API_URL is not configured.");
     }
@@ -29,4 +29,12 @@ export async function Courses({
     if (category) query.set("category", category);
 
     return fetch(`${apiBaseUrl.replace(/\/+$/, "")}/courses?${query}`, { signal });
+}
+
+
+export async function CourseDetail(slug: string, signal?: AbortSignal) {
+    if (!apiBaseUrl) {
+        throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+    }
+    return fetch(`${apiBaseUrl.replace(/\/+$/, "")}/courses/${encodeURIComponent(slug)}`, { signal });
 }

@@ -8,12 +8,16 @@ const validate_1 = require("../../middleware/validate");
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const slugify_1 = require("../../utils/slugify");
 const router = (0, express_1.Router)();
+const thumbnailUrlSchema = zod_1.z.union([
+    zod_1.z.string().url(),
+    zod_1.z.string().regex(/^\/course-images\/[A-Za-z0-9][A-Za-z0-9._-]*$/),
+]);
 const courseSchema = zod_1.z.object({
     title: zod_1.z.string().min(3),
     description: zod_1.z.string().min(10),
     level: zod_1.z.enum(['Beginner', 'Intermediate', 'Advanced']),
     price: zod_1.z.number().min(0),
-    thumbnailUrl: zod_1.z.string().url().nullable().optional(),
+    thumbnailUrl: thumbnailUrlSchema.nullable().optional(),
     categoryId: zod_1.z.number().int().nullable().optional(),
 });
 const statusSchema = zod_1.z.object({ status: zod_1.z.enum(['DRAFT', 'PUBLISHED']) });

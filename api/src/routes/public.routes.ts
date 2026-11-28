@@ -17,6 +17,13 @@ const router = Router();
  *     parameters:
  *       - { in: query, name: q, schema: { type: string }, description: Search in title }
  *       - { in: query, name: category, schema: { type: string }, description: Category slug }
+ *       - in: query
+ *         name: sort
+ *         description: Sort by course title, or by creation date for newest
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc, newest]
+ *           default: asc
  *       - { in: query, name: page, schema: { type: integer, default: 1 } }
  *       - { in: query, name: limit, schema: { type: integer, default: 9 } }
  *     responses:
@@ -34,6 +41,22 @@ router.get(
     const category = String(req.query.category || '').trim();
     const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
+    const sort = String(req.query.sort || 'asc').trim().toLowerCase();
+    let orderBy: Prisma.CourseOrderByWithRelationInput;
+
+    switch (sort) {
+      case 'asc':
+        orderBy = { title: 'asc' };
+        break;
+      case 'desc':
+        orderBy = { title: 'desc' };
+        break;
+      case 'newest':
+        orderBy = { createdAt: 'desc' };
+        break;
+      default:
+        return res.status(400).json({ message: 'Sort must be asc, desc, or newest' });
+    }
 
     // Public users only ever see published courses
     const where: Prisma.CourseWhereInput = { status: 'PUBLISHED' };
@@ -45,7 +68,7 @@ router.get(
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: { category: true, instructor: { select: { name: true } } },
       }),
       prisma.course.count({ where }),

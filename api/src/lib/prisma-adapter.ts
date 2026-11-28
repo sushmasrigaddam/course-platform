@@ -17,5 +17,6 @@ export function createPrismaAdapter() {
     user: decodeURIComponent(connection.username),
     password: decodeURIComponent(connection.password),
     database: decodeURIComponent(connection.pathname.slice(1)),
+    allowPublicKeyRetrieval: connection.searchParams.get('allowPublicKeyRetrieval') === 'true',
   });
 }

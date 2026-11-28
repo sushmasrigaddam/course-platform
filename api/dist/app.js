@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
+const node_path_1 = __importDefault(require("node:path"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = require("./docs/swagger");
 const errorHandler_1 = require("./middleware/errorHandler");
@@ -17,6 +18,10 @@ const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({ origin: (process.env.CLIENT_ORIGINS || '').split(',') }));
 app.use(express_1.default.json());
+app.use('/course-images', (_req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+}, express_1.default.static(node_path_1.default.join(__dirname, '../public/course-images')));
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.swaggerSpec, {
     swaggerOptions: { docExpansion: 'none', persistAuthorization: true },
 }));

@@ -1,26 +1,32 @@
-import { NextResponse } from "next/server";
+import type { CourseQuery } from '../types';
 
 export async function Categories() {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiBaseUrl) {
-        return NextResponse.json({ message: "NEXT_PUBLIC_API_URL is not configured." }, { status: 500 });
+        throw new Error("NEXT_PUBLIC_API_URL is not configured.");
     }
-    const categories = await fetch(`${apiBaseUrl.replace(/\/+$/, "")}/categories`);
-    if (!categories.ok) {
-        return NextResponse.json({ message: `Failed to fetch categories (${categories.status}).` }, { status: categories.status });
-    }
-    const categoriesData = await categories.json();
-    return NextResponse.json(categoriesData);
+    return fetch(`${apiBaseUrl.replace(/\/+$/, "")}/categories`);
 }
-export async function Courses() {
+export async function Courses({
+    q = "",
+    category = "",
+    sort = "asc",
+    page = 1,
+    limit = 10,
+    signal,
+}: CourseQuery = {}) {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiBaseUrl) {
-        return NextResponse.json({ message: "NEXT_PUBLIC_API_URL is not configured." }, { status: 500 });
+        throw new Error("NEXT_PUBLIC_API_URL is not configured.");
     }
-    const courses = await fetch(`${apiBaseUrl.replace(/\/+$/, "")}/courses`);
-    if (!courses.ok) {
-        return NextResponse.json({ message: `Failed to fetch courses (${courses.status}).` }, { status: courses.status });
-    }
-    const coursesData = await courses.json();
-    return NextResponse.json(coursesData);
-}   
+
+    const query = new URLSearchParams({
+        sort,
+        page: String(page),
+        limit: String(limit),
+    });
+    if (q.trim()) query.set("q", q.trim());
+    if (category) query.set("category", category);
+
+    return fetch(`${apiBaseUrl.replace(/\/+$/, "")}/courses?${query}`, { signal });
+}
